@@ -6,7 +6,7 @@ export const TableRawTabungan = ({data}: any) => {
         return (
         <tr key={index}>
           <td>{index + 1}</td>
-          <td>{tab.date}</td>
+          <td>{tab.tanggal}</td>
           <td>{tab.jumlah}</td>
         </tr>   
         )

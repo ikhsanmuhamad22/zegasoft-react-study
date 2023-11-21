@@ -21,14 +21,18 @@ export const TabunganPage = () => {
 
     const isWithdrawal = event.target.name === 'widhrawal';
 
+    if(isWithdrawal && amount > saldoCount) {
+      setJumlah('')
+      return alert('saldo tidak mencukupi')
+    }
+
     const transactionValue = isWithdrawal ? -amount : amount;
 
     const newTabungan = {
       jumlah: transactionValue,
-      date: new Date().toLocaleTimeString()
+      tanggal: new Date().toLocaleDateString()
     }
     tabungan.push(newTabungan)
-    console.log(tabungan);
     setJumlah('')
   }
 
@@ -37,24 +41,43 @@ export const TabunganPage = () => {
   }
 
   return (
-    <div>
-      <InputTabungan handdleInput={handdleInput} addTabungan={addTabungan} jumlah={jumlah}/>
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Tanggal</th>
-            <th>Jumlah</th>
-          </tr>
-        </thead>
-        <tbody>
-          <TableRawTabungan data={tabungan}/>
-          <tr>
-            <td colSpan={2}>Jumlah Tabungan</td>
-            <td>{saldoCount}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="container">
+      <section>
+        <h1>Total Saldo Rp{saldoCount}</h1>
+      </section>
+      <section>
+        <h2>Menabung & Menarik tabungan</h2>
+        <InputTabungan handdleInput={handdleInput} addTabungan={addTabungan} jumlah={jumlah}/>
+      </section>
+      <section>
+        <h2>Riwayat Tabungan</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Tx</th>
+              <th>Tanggal</th>
+              <th>Jumlah</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              tabungan.length === 0 ? 
+                (
+                  <tr>
+                    <td colSpan={3}>Data Masih Kosong</td>
+                  </tr>
+                ) : 
+                <>
+                  <TableRawTabungan data={tabungan}/>
+                  <tr>
+                    <td colSpan={2}>Jumlah Tabungan</td>
+                    <td>{saldoCount}</td>
+                  </tr>
+                </>
+            }
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 };
