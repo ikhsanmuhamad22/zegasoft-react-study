@@ -30,14 +30,18 @@ export const TabunganPage = () => {
     const amount = parseInt(jumlah);
     const iswidhrawal = event.target.name === 'widhrawal';
 
+    if(!amount) {
+      return alert('mohon masukan jumlah yang diinginkan')
+    }
+
     if(iswidhrawal && amount > saldoCount) {
       setJumlah('')
       return alert('saldo tidak mencukupi')
     }
 
-    if(amount < 1000) {
+    if( amount < 1000) {
       setJumlah('')
-      return alert('minimal menabung 1000')
+      return alert('minimal transaksi Rp1000')
     }
 
     // fun yang menentukan apakah menabung atau menarik uang
