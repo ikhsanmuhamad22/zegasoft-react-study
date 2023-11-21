@@ -1,52 +1,83 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TableRawTabungan } from "../Components/TableRawTabungan";
 import { InputTabungan } from "../Components/InputTabungan";
 
-const tabungan: any = []
-
-const getsaldoCount = (): number =>  {
-  let result = 0
-  tabungan.map((t: any) => result += t.jumlah)
-  return result
-}
 
 export const TabunganPage = () => {
-  const saldoCount = getsaldoCount()
   const [jumlah, setJumlah] = useState('')
+  const [tabungan, setTabungan] = useState<string[]>([]);
 
+  // fun mengambil data jumlah saldo
+  const getsaldoCount = (): number =>  {
+    let result = 0
+    tabungan.map((t: any) => result += t.jumlah)
+    return result
+  }
+  const saldoCount = getsaldoCount()
+
+  // fun megambil data dari local storage
+  useEffect(() => {
+    const dataTabungan = localStorage.getItem('tabungan');
+    if (dataTabungan) {
+      setTabungan(JSON.parse(dataTabungan));
+    }
+  }, []);
+
+  // fun add Tabungan
   const addTabungan = (event: any): void => {
     event.preventDefault()
     const amount = parseInt(jumlah);
+    const iswidhrawal = event.target.name === 'widhrawal';
 
-    const isWithdrawal = event.target.name === 'widhrawal';
-
-    if(isWithdrawal && amount > saldoCount) {
+    if(iswidhrawal && amount > saldoCount) {
       setJumlah('')
       return alert('saldo tidak mencukupi')
     }
 
-    const transactionValue = isWithdrawal ? -amount : amount;
+    if(amount < 1000) {
+      setJumlah('')
+      return alert('minimal menabung 1000')
+    }
 
-    const newTabungan = {
+    // fun yang menentukan apakah menabung atau menarik uang
+    const transactionValue = iswidhrawal ? -amount : amount;
+
+    interface newTabunganType {
+      jumlah: number;
+      tanggal: string;
+    }
+
+    const newTabungan: newTabunganType = {
       jumlah: transactionValue,
       tanggal: new Date().toLocaleDateString()
     }
-    tabungan.push(newTabungan)
+
+    const existingTabungan: newTabunganType[] = JSON.parse(localStorage.getItem('tabungan') ?? '[]');
+    const updatedTabungan: any = [...existingTabungan, newTabungan];
+    localStorage.setItem('tabungan', JSON.stringify(updatedTabungan));
+
+    setTabungan(updatedTabungan)
     setJumlah('')
   }
 
+  // fun handle input
   const handdleInput = (event: any) => {
     setJumlah(event.target.value)
   }
 
+  // fun clear data
+  const clearData = () => {
+    localStorage.removeItem("tabungan");
+    setTabungan([])
+  }
   return (
     <div className="container">
       <section>
-        <h1>Total Saldo Rp{saldoCount}</h1>
+        <h1>Total Saldo Tabungan Rp{saldoCount}</h1>
       </section>
       <section>
-        <h2>Menabung & Menarik tabungan</h2>
+        <h2>Menabung & tarik uang</h2>
         <InputTabungan handdleInput={handdleInput} addTabungan={addTabungan} jumlah={jumlah}/>
       </section>
       <section>
@@ -76,7 +107,8 @@ export const TabunganPage = () => {
                 </>
             }
           </tbody>
-        </table>
+        </table> <br/>
+        <button onClick={clearData}>Hapus Riwayat & Tabungan</button>
       </section>
     </div>
   );
